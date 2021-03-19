@@ -21,13 +21,13 @@ services:
       LOG_DIR: logs
       API_URL: api_url
 
-  # worker:
-  #   build:
-  #     context: ./worker
-  #   links:
-  #     - php-apache
-  #   environment:
-  #     API_HOSTNAME: php-apache
+  worker:
+    build:
+      context: .
+    links:
+      - php-apache
+    environment:
+      API_HOSTNAME: php-apache
 
   mysql:
     image: mysql

@@ -78,19 +78,36 @@ def setup_language_repo(opts):
     run_cmd("%s %s" % (retrieve_cmd, download_dir))
 
 def setup_website(opts):
+    """ Configure apache to serve the website and set a server_info.php """
+    website_root = os.path.join(opts.local_repo, "website")
+    #si_filename = os.path.join(TEMPLATE_DIR, "server_info.php.template")
+    #with open(si_filename, 'r') as si_file:
+    #    si_template = si_file.read()
+    #si_contents = si_template.format(upload_dir=opts.upload_dir,
+    #       map_dir=opts.map_dir, replay_dir=opts.replay_dir,
+    #       log_dir=opts.log_dir, repo_dir=opts.local_repo,
+    #       database_user=opts.database_user,
+    #       database_password=opts.database_password,
+    #       database_name=opts.database_name,
+    #       api_url=opts.website_hostname
+    #       )
+    #with CD(website_root):
+    #   if not os.path.exists("server_info.php"):
+    #       with open("server_info.php", "w") as si_file:
+    #           si_file.write(si_contents)
     with CD(website_root):
         # setup pygments flavored markdown
-        run_cmd("easy_install ElementTree")
-        run_cmd("easy_install Markdown")
+        #run_cmd("easy_install ElementTree")
+        #run_cmd("easy_install Markdown")
         run_cmd("easy_install Pygments")
         if not os.path.exists("aichallenge.wiki"):
             run_cmd("git clone git://github.com/aichallenge/aichallenge.wiki.git")
-            run_cmd("python setup.py")
-    # with CD(os.path.join(opts.local_repo, "ants/dist/starter_bots")):
-    #     run_cmd("make")
-    #     run_cmd("make install")
-    # if not os.path.exists(os.path.join(website_root, "worker-src.tgz")):
-    #     create_worker_archive.main(website_root)
+        #    run_cmd("python setup.py")
+    with CD(os.path.join(opts.local_repo, "ants/dist/starter_bots")):
+        run_cmd("make")
+        run_cmd("make install")
+    if not os.path.exists(os.path.join(website_root, "worker-src.tgz")):
+        create_worker_archive.main(website_root)
     visualizer_path = os.path.join(opts.local_repo, "ants/visualizer")
     plugin_path = "/usr/share/icedtea-web/plugin.jar"
     if not os.path.exists(os.path.join(website_root, "visualizer")):
@@ -204,9 +221,9 @@ def get_options(argv):
 
 def main(argv=["server_setup.py"]):
     opts = get_options(argv)
-    with Environ("DEBIAN_FRONTEND", "noninteractive"):
-        for install in opts.installs:
-            install()
+    #with Environ("DEBIAN_FRONTEND", "noninteractive"):
+        #for install in opts.installs:
+            #install()
     if opts.packages_only:
         return
     setup_base_files(opts)
