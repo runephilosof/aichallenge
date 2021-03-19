@@ -26,7 +26,7 @@ def install_manager_packages():
 def install_website_packages():
     """ Install system packages required for the website """
     pkg_list = ["memcached", "php-memcache", "zip", "nodejs",
-            "cvs", "openjdk-8-jdk", "ant", "icedtea-plugin",
+            "cvs", "openjdk-11-jdk", "ant",
             "python-setuptools", "dvipng", "texlive-latex-base"]
     run_cmd("curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -")
     install_apt_packages(pkg_list)
