@@ -95,7 +95,7 @@ if @min_players <= @max_players then
     values (@matchup_id, @seed_id, @submission_id, -1, @mu, @sigma);
 
     -- debug statement
-    select @seed_id as seed_id, @submission_id as submission_id, @mu as mu, @sigma as sigma, rank
+    select @seed_id as seed_id, submission_id, @mu as mu, @sigma as sigma, `rank`
     from submission
     where submission_id = @submission_id;
 
