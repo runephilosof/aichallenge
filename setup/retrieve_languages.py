@@ -9,7 +9,7 @@ import urlparse
 from install_tools import CD, run_cmd, CmdError
 
 sources = [
-    ("https://deb.nodesource.com/setup_11.x", "nodejs.deb")
+    ("https://deb.nodesource.com/setup_12.x", "nodejs.deb")
 ]
 
 if len(sys.argv) < 2:

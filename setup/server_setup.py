@@ -28,7 +28,7 @@ def install_website_packages():
     pkg_list = ["memcached", "php-memcache", "zip", "nodejs",
             "cvs", "openjdk-11-jdk", "ant",
             "python-setuptools", "dvipng", "texlive-latex-base"]
-    run_cmd("curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -")
+    run_cmd("curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -")
     install_apt_packages(pkg_list)
 
 def setup_base_files(opts):
