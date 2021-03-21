@@ -221,9 +221,9 @@ def get_options(argv):
 
 def main(argv=["server_setup.py"]):
     opts = get_options(argv)
-    #with Environ("DEBIAN_FRONTEND", "noninteractive"):
-        #for install in opts.installs:
-            #install()
+    with Environ("DEBIAN_FRONTEND", "noninteractive"):
+        for install in opts.installs:
+            install()
     if opts.packages_only:
         return
     setup_base_files(opts)
