@@ -26,7 +26,7 @@ COPY setup/server_setup.py \
      setup/server_info.py.template \
      setup/retrieve_languages.py \
        /setup/setup/
-RUN mkdir -p /setup/manager /setup/website
+RUN mkdir -p /setup/manager /setup/website/starter_packages
 WORKDIR /setup
 COPY ants/dist/ /setup/ants/dist/
 RUN python setup/server_setup.py --take-over-server
