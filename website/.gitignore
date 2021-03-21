@@ -2,7 +2,6 @@
 latex.cache
 
 aichallenge.wiki/
-server_info.php
 server_message.html
 server_head.html
 aichallenge.css
@@ -11,6 +10,7 @@ tools.tar.bz2
 tools.zip
 ants/
 maps/
+uploads/
 visualizer/
 
 langs

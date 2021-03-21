@@ -20,16 +20,15 @@ TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def install_manager_packages():
     """ Install basic system packages required for the manager """
-    pkg_list = ["mysql-server", "python-mysqldb", "openssh-server", "make",
-            "git", "cron", "unzip"]
+    pkg_list = ["python-mysqldb", "make", "git", "cron", "unzip"]
     install_apt_packages(pkg_list)
 
 def install_website_packages():
     """ Install system packages required for the website """
-    pkg_list = ["apache2", "php5", "libapache2-mod-php5", "php5-mysql",
-            "memcached", "php5-memcache", "php5-curl", "zip", "nodejs",
-            "cvs", "openjdk-6-jdk", "ant", "icedtea-plugin",
+    pkg_list = ["memcached", "php-memcache", "zip", "nodejs",
+            "cvs", "openjdk-8-jdk", "ant", "icedtea-plugin",
             "python-setuptools", "dvipng", "texlive-latex-base"]
+    run_cmd("curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -")
     install_apt_packages(pkg_list)
 
 def setup_base_files(opts):
@@ -67,49 +66,6 @@ def setup_base_files(opts):
     if os.stat(opts.local_repo).st_uid != pwd.getpwnam(opts.username).pw_uid:
         run_cmd("chown -R {0}:{0} {1}".format(opts.username, opts.local_repo))
 
-SETUP_SQL = {
-    "creation": "create database %s",
-    "user_grant_passwd":
-            "grant usage on *.* to %s@localhost identified by '%s'",
-    "user_grant_nopasswd":
-            "grant usage on *.* to %s@localhost",
-    "database_perms": "grant all privileges on %s.* to %s@localhost",
-    }
-
-def setup_database(opts):
-    """ Setup database for contest use """
-    import MySQLdb
-    try:
-        password_opt = ""
-        if opts.database_password:
-            password_opt = "-p'%s'" % (opts.database_password,)
-        run_cmd("echo 'quit' | mysql -u %s %s %s" % (opts.database_user,
-            password_opt, opts.database_name))
-    except CmdError:
-        with MySQLdb.connect(host="127.0.0.1", user="root",
-                passwd=opts.database_root_password) as cursor:
-            cursor.execute(SETUP_SQL["creation"] % (opts.database_name,))
-            if opts.database_user != "root":
-                if opts.database_password:
-                    cursor.execute(SETUP_SQL["user_grant_passwd"]
-                        % (opts.database_user, opts.database_password))
-                else:
-                    cursor.execute(SETUP_SQL["user_grant_nopasswd"]
-                        % (opts.database_user,))
-                cursor.execute(SETUP_SQL["database_perms"]
-                        % (opts.database_name, opts.database_user))
-        password_opt = ""
-        if opts.database_password:
-            password_opt = "-p'%s'" % (opts.database_password,)
-        schema_dir = os.path.join(opts.local_repo, "sql")
-        schema_files = os.listdir(schema_dir)
-        schema_files = [f for f in schema_files if f.endswith(".sql")]
-        schema_files.sort()
-        for sf in schema_files:
-            sp = os.path.join(schema_dir, sf)
-            run_cmd("mysql -u %s %s %s < %s" % (opts.database_user,
-                password_opt, opts.database_name, sp))
-
 def setup_language_repo(opts):
     """ Download languages not part of OS distribution locally for workers """
     download_dir = os.path.join(opts.local_repo, "website/langs")
@@ -122,23 +78,7 @@ def setup_language_repo(opts):
     run_cmd("%s %s" % (retrieve_cmd, download_dir))
 
 def setup_website(opts):
-    """ Configure apache to serve the website and set a server_info.php """
-    website_root = os.path.join(opts.local_repo, "website")
-    si_filename = os.path.join(TEMPLATE_DIR, "server_info.php.template")
-    with open(si_filename, 'r') as si_file:
-        si_template = si_file.read()
-    si_contents = si_template.format(upload_dir=opts.upload_dir,
-            map_dir=opts.map_dir, replay_dir=opts.replay_dir,
-            log_dir=opts.log_dir, repo_dir=opts.local_repo,
-            database_user=opts.database_user,
-            database_password=opts.database_password,
-            database_name=opts.database_name,
-            api_url=opts.website_hostname
-            )
     with CD(website_root):
-        if not os.path.exists("server_info.php"):
-            with open("server_info.php", "w") as si_file:
-                si_file.write(si_contents)
         # setup pygments flavored markdown
         run_cmd("easy_install ElementTree")
         run_cmd("easy_install Markdown")
@@ -146,11 +86,11 @@ def setup_website(opts):
         if not os.path.exists("aichallenge.wiki"):
             run_cmd("git clone git://github.com/aichallenge/aichallenge.wiki.git")
             run_cmd("python setup.py")
-    with CD(os.path.join(opts.local_repo, "ants/dist/starter_bots")):
-        run_cmd("make")
-        run_cmd("make install")
-    if not os.path.exists(os.path.join(website_root, "worker-src.tgz")):
-        create_worker_archive.main(website_root)
+    # with CD(os.path.join(opts.local_repo, "ants/dist/starter_bots")):
+    #     run_cmd("make")
+    #     run_cmd("make install")
+    # if not os.path.exists(os.path.join(website_root, "worker-src.tgz")):
+    #     create_worker_archive.main(website_root)
     visualizer_path = os.path.join(opts.local_repo, "ants/visualizer")
     plugin_path = "/usr/share/icedtea-web/plugin.jar"
     if not os.path.exists(os.path.join(website_root, "visualizer")):
@@ -158,28 +98,6 @@ def setup_website(opts):
             run_cmd("ant deploy -Djava.plugin=%s -Ddeploy.path=%s"
                     % (plugin_path, website_root))
     setup_language_repo(opts)
-
-    site_config = "/etc/apache2/sites-available/" + opts.website_hostname
-    if not os.path.exists(site_config):
-        site_filename = os.path.join(TEMPLATE_DIR, "apache_site.template")
-        with open(site_filename, "r") as site_file:
-            site_template = site_file.read()
-        site_contents = site_template.format(web_hostname=opts.website_hostname,
-                web_root=website_root,
-                log_dir=opts.log_dir,
-                map_dir=opts.map_dir,
-                replay_dir=opts.replay_dir)
-        with open(site_config, "w") as site_file:
-            site_file.write(site_contents)
-        if opts.website_as_default:
-            enabled_link = "/etc/apache2/sites-enabled/000-default"
-        else:
-            enabled_link = "/etc/apache2/sites-enabled/" + opts.website_hostname
-        if os.path.exists(enabled_link):
-            os.remove(enabled_link)
-        os.symlink(site_config, enabled_link)
-        run_cmd("a2enmod rewrite")
-        run_cmd("/etc/init.d/apache2 restart")
     run_cmd("chown -R {0}:{0} {1}".format(opts.username, website_root))
 
 def interactive_options(options):
@@ -285,7 +203,6 @@ def get_options(argv):
     return options
 
 def main(argv=["server_setup.py"]):
-    check_ubuntu_version()
     opts = get_options(argv)
     with Environ("DEBIAN_FRONTEND", "noninteractive"):
         for install in opts.installs:
@@ -293,7 +210,6 @@ def main(argv=["server_setup.py"]):
     if opts.packages_only:
         return
     setup_base_files(opts)
-    setup_database(opts)
     setup_website(opts)
 
 if __name__ == "__main__":
