@@ -20,7 +20,7 @@ TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def install_manager_packages():
     """ Install basic system packages required for the manager """
-    pkg_list = ["python-mysqldb", "make", "git", "cron", "unzip"]
+    pkg_list = ["python-mysqldb", "make", "git", "cron", "unzip", "sudo"]
     install_apt_packages(pkg_list)
 
 def install_website_packages():
