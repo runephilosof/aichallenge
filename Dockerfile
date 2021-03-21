@@ -18,7 +18,8 @@ RUN apt update && \
       python-setuptools \
       dvipng \
       texlive-latex-base
-RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - && \
+    apt install -y nodejs
 COPY . /setup/
 WORKDIR /setup
 RUN python setup/server_setup.py --take-over-server
