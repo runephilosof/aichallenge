@@ -100,7 +100,7 @@ def get_ubuntu_release_info():
     version="notubuntu"
     arch="unknown"
     try:
-        version=re.match(".*DISTRIB_CODENAME=(\w*).*",open("/etc/lsb-release").read(),re.DOTALL).group(1)
+        version=re.match(".*VERSION_CODENAME=(\w*).*",open("/etc/os-release").read(),re.DOTALL).group(1)
         arch=run_cmd("dpkg --print-architecture",True).strip()
     except CmdError, IOError:
         arch=run_cmd("uname -p",True).strip()
