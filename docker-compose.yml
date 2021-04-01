@@ -7,8 +7,6 @@ services:
       - 127.0.0.1:8080:80
     volumes:
       - ./website:/var/www/html
-    links:
-      - mysql
     environment:
       WEBSITE_HOSTNAME: localhost
       DATABASE_USER: contest
@@ -24,8 +22,7 @@ services:
   worker:
     build:
       context: .
-    links:
-      - php-apache
+    image: localhost/aichallenge-worker-setup
     environment:
       API_HOSTNAME: php-apache
 
@@ -45,8 +42,6 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    links:
-      - mysql
     environment:
       PMA_HOST: mysql
       PMA_PORT: 3306
