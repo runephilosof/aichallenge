@@ -37,9 +37,9 @@ def install_basic_languages():
 def install_nodejs(download_base):
     """ Install node.js """
     install_apt_packages(["rlwrap"])
-    with CD("/root"):
-        run_cmd("curl '%s/nodejs.deb' > nodejs.deb" % (download_base,))
-        run_cmd("dpkg -i nodejs.deb")
+    #with CD("/root"):
+    #    run_cmd("curl '%s/nodejs.deb' > nodejs.deb" % (download_base,))
+    #    run_cmd("dpkg -i nodejs.deb")
 
 def install_packaged_languages():
     install_basic_languages()
