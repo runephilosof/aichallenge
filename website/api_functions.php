@@ -24,7 +24,7 @@ if (!isset($_GET['api_key'])) {
  */
 
 function valid_worker($api_key,$ip_address) {
-	global $memcache;
+	global $memcache, $mysqli;
 	if ($memcache) {
 		$memcache->delete('workers');
 		// pull workers array from memcache
@@ -46,7 +46,7 @@ function valid_worker($api_key,$ip_address) {
 	} else {
 		// fallback for no memcache
 		$sql = "SELECT * FROM worker WHERE api_key = '".mysqli_real_escape_string($mysqli, $api_key)."';";
-	    $result = mysqli_query($sql);
+	    $result = mysqli_query($mysqli, $sql);
 	    if(!$result || mysqli_num_rows($result) == 0){
 	        return false;
 	    }
