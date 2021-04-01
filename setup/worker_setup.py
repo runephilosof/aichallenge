@@ -87,29 +87,12 @@ def setup_contest_files(options):
 
 def setup_base_chroot(options):
     """ Create and setup the base chroot jail users will run in. """
-    install_apt_packages(["debootstrap", "schroot", "unionfs-fuse", "gcc"])
+    install_apt_packages(["debootstrap", "unionfs-fuse", "gcc"])
     chroot_dir = "/srv/chroot"
     base_chroot_dir = os.path.join(chroot_dir, "aic-base")
     if not os.path.exists(base_chroot_dir):
         os.makedirs(base_chroot_dir)
-        run_cmd("debootstrap --variant=buildd --arch %s xenial \
-                %s %s" % (options.arch, base_chroot_dir, options.os_url))
-        with CD(TEMPLATE_DIR):
-            run_cmd("cp chroot_configs/chroot.d/aic-base /etc/schroot/chroot.d/")
-            with open("chroot_configs/sources.list.template", "r") as sl_file:
-                sources_template = sl_file.read()
-            sources_contents = sources_template.format(src_url=options.src_url)
-            chroot_filename = "%s/etc/apt/sources.list" % (base_chroot_dir,)
-            with open(chroot_filename, "w") as sources_file:
-                sources_file.write(sources_contents)
-            run_cmd("cp -r chroot_configs/ai-jail /etc/schroot/ai-jail")
-        deb_archives = "/var/cache/apt/archives/"
-        run_cmd("cp {0}*.deb {1}{0}".format(deb_archives, base_chroot_dir))
-        run_cmd("schroot -c aic-base -- /bin/sh -c \"\
-                DEBIANFRONTEND=noninteractive;\
-                apt-get update; apt-get upgrade -y\"")
-        run_cmd("schroot -c aic-base -- apt-get install -y python")
-    run_cmd("schroot -c aic-base -- %s/setup/worker_setup.py --chroot-base"
+    run_cmd("%s/setup/worker_setup.py --chroot-base"
             % (os.path.join(options.root_dir, options.local_repo),))
 
 def create_jail_group(options):
@@ -164,9 +147,6 @@ def create_jail_user(username):
         "chroot_configs/chroot.d/jailuser.template")
     with open(cfg_filename, 'r') as cfg_file:
         cfg = cfg_file.read()
-    schroot_filename = os.path.join("/etc/schroot/chroot.d", username)
-    with open(schroot_filename, 'w') as schroot_file:
-        schroot_file.write(cfg.format(jailname=username))
 
 IPTABLES_LOAD = """#!/bin/sh
 iptables-restore < /etc/iptables.rules
@@ -175,7 +155,7 @@ exit 0
 
 def setup_base_jail(options):
     """ Create and configure base jail """
-    run_cmd("schroot -c aic-base -- %s/setup/worker_setup.py --chroot-setup --api-url %s"
+    run_cmd("%s/setup/worker_setup.py --chroot-setup --api-url %s"
             % (os.path.join(options.root_dir, options.local_repo),
                 options.api_url))
     create_jail_group(options)
