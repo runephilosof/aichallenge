@@ -30,7 +30,7 @@ def install_utility_packages():
 def install_basic_languages():
     """ Install base set of submission languages,
         currently Java, and Python """
-    pkg_list = ["openjdk-8-jdk", "python-dev", "python3-dev",
+    pkg_list = ["openjdk-11-jdk", "python-dev", "python3-dev",
                 "python-numpy", "python-scipy"]
     install_apt_packages(pkg_list)
 
