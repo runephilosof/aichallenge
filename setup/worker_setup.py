@@ -231,7 +231,7 @@ def get_options(argv):
     default_setup = {
         "update_system": True,
         "install_required": True,
-        "install_utilities": True,
+        "install_utilities": False,
         "install_languages": False,
         "install_pkg_languages": False,
         "install_jailguard": False,
