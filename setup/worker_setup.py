@@ -18,7 +18,7 @@ TEMPLATE_DIR = os.path.dirname(os.path.abspath(__file__))
 def install_required_packages():
     """ This installs the packages that are required to run the worker scripts
     """
-    pkg_list = ["unzip", "software-properties-common"]
+    pkg_list = ["unzip", "software-properties-common", "iptables"]
     install_apt_packages(pkg_list)
 
 def install_utility_packages():
