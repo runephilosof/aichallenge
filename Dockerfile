@@ -23,3 +23,4 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - && \
 COPY . /setup/
 WORKDIR /setup
 RUN python setup/server_setup.py --take-over-server
+CMD python worker/worker.py -t -n 0

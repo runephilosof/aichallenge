@@ -22,9 +22,12 @@ services:
   worker:
     build:
       context: .
+    depends_on:
+      - php-apache
     image: localhost/aichallenge-worker-setup
     environment:
       API_HOSTNAME: php-apache
+      API_BASE_URL: php-apache
 
   mysql:
     image: mysql
